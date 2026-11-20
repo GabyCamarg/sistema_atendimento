@@ -145,58 +145,97 @@ struct ListaMedicos {
     }
 };
 
+
+// R4 - RELATORIO DE ATENDIMENTOS
+// Imprime o historico sem destruir os dados da pilha.
+void imprimirHistorico(PilhaHistorico& hist) {
+    cout << "\n=== RELATORIO DE ATENDIMENTOS ===\n";
+
+    if (hist.isEmpty()) {
+        cout << "(nenhum atendimento registrado)\n";
+        return;
+    }
+
+    PilhaHistorico auxiliar;
+
+    cout << "Atendimentos (mais recente ao mais antigo):\n";
+
+    while (!hist.isEmpty()) {
+        string atendimento = hist.pop();
+        cout << "- " << atendimento << "\n";
+        auxiliar.push(atendimento);
+    }
+
+    // Devolve os registros para a pilha original.
+    while (!auxiliar.isEmpty()) {
+        hist.push(auxiliar.pop());
+    }
+}
+
 int main() {
-    cout << "=== R1 - FILA DE PACIENTES ===\n";
+    cout << "============================================\n";
+    cout << "    SISTEMA DE ATENDIMENTO HOSPITALAR\n";
+    cout << "============================================\n";
 
     FilaPacientes fila;
-    fila.enqueue("Eduardo", 3);
-    fila.enqueue("Fernanda", 1);
-    fila.enqueue("Gabriel", 2);
-    fila.enqueue("Helena", 1);
+    PilhaHistorico historico;
+    ListaMedicos medicos;
+
+    // R3 - Cadastro dos medicos
+    cout << "\n--- Cadastro de medicos ---\n";
+    medicos.adicionarMedico("Dra. Ana Lima");
+    medicos.adicionarMedico("Dr. Bruno Costa");
+    medicos.adicionarMedico("Dra. Carla Ramos");
+    cout << "Medicos disponiveis:\n";
+    medicos.percorrer();
+
+    // R1 - Chegada dos pacientes
+    cout << "\n--- Pacientes chegando ---\n";
+    fila.enqueue("Eduardo (urgencia=3)", 3);
+    fila.enqueue("Fernanda (urgencia=1)", 1);
+    fila.enqueue("Gabriel (urgencia=2)", 2);
+    fila.enqueue("Helena (urgencia=1)", 1);
 
     cout << "Proximo paciente: " << fila.frente_peek() << "\n";
     cout << "Total na fila: " << fila.tamanho() << "\n";
 
-    cout << "\nAtendimento dos pacientes:\n";
-    while (!fila.isEmpty()) {
-        cout << fila.dequeue() << "\n";
+    // Simulacao dos atendimentos
+    cout << "\n--- Simulacao de atendimentos ---\n";
+
+    int numero = 1;
+
+    while (!fila.isEmpty() && medicos.temMedico()) {
+        string paciente = fila.dequeue();
+        string medico = medicos.chamarMedico();
+
+        cout << "[" << numero++ << "] "
+             << medico << " atende " << paciente << "\n";
+
+        // R2 - Registra o atendimento na pilha
+        historico.push(medico + " atende " + paciente);
+
+        // O medico retorna ao final da lista
+        medicos.adicionarMedico(medico);
     }
-    cout << "Total restante: " << fila.tamanho() << "\n";
 
-    cout << "\n=== R2 - PILHA DE HISTORICO ===\n";
+    // R4 - Relatorio preservando o historico
+    string ultimoAntes = historico.peek();
 
-    PilhaHistorico historico;
-    historico.push("Eduardo");
-    historico.push("Fernanda");
-    historico.push("Gabriel");
+    imprimirHistorico(historico);
 
-    cout << "Ultimo atendimento registrado: "
+    cout << "\n--- Verificacao da preservacao ---\n";
+    cout << "Ultimo atendimento antes do relatorio: "
+         << ultimoAntes << "\n";
+    cout << "Ultimo atendimento depois do relatorio: "
          << historico.peek() << "\n";
 
-    cout << "\nHistorico (mais recente primeiro):\n";
-    while (!historico.isEmpty()) {
-        cout << historico.pop() << "\n";
-    }
-
-
-    cout << "\n=== R3 - LISTA ENCADEADA DE MEDICOS ===\n";
-
-    ListaMedicos medicos;
-    medicos.adicionarMedico("Dra. Ana");
-    medicos.adicionarMedico("Dr. Bruno");
-    medicos.adicionarMedico("Dra. Carla");
-
-    cout << "Medicos cadastrados:\n";
+    cout << "\n--- Medicos disponiveis ao final ---\n";
+    cout << "Medicos disponiveis ao final:\n";
     medicos.percorrer();
 
-    cout << "Proximo medico chamado: "
-         << medicos.chamarMedico() << "\n";
-
-    cout << "Medicos restantes:\n";
-    medicos.percorrer();
-
-    cout << "Existe medico disponivel? "
-         << (medicos.temMedico() ? "Sim" : "Nao") << "\n";
+    cout << "\n============================================\n";
+    cout << "       FIM DO SISTEMA DE ATENDIMENTO\n";
+    cout << "============================================\n";
 
     return 0;
 }
