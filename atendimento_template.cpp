@@ -94,6 +94,57 @@ struct PilhaHistorico {
     }
 };
 
+// R3 - LISTA ENCADEADA DE MEDICOS
+struct ListaMedicos {
+    No* inicio = nullptr;
+
+    void adicionarMedico(const string& nome) {
+        No* novo = new No(nome);
+
+        if (inicio == nullptr) {
+            inicio = novo;
+        } else {
+            No* atual = inicio;
+            while (atual->prox != nullptr) {
+                atual = atual->prox;
+            }
+            atual->prox = novo;
+        }
+    }
+
+    string chamarMedico() {
+        if (inicio == nullptr) return "";
+
+        No* temp = inicio;
+        string nome = temp->nome;
+        inicio = inicio->prox;
+        delete temp;
+
+        return nome;
+    }
+
+    void percorrer() const {
+        if (inicio == nullptr) {
+            cout << "Nenhum medico cadastrado.\n";
+            return;
+        }
+
+        No* atual = inicio;
+        while (atual != nullptr) {
+            cout << atual->nome << "\n";
+            atual = atual->prox;
+        }
+    }
+
+    bool temMedico() const {
+        return inicio != nullptr;
+    }
+
+    ~ListaMedicos() {
+        while (temMedico()) chamarMedico();
+    }
+};
+
 int main() {
     cout << "=== R1 - FILA DE PACIENTES ===\n";
 
@@ -126,6 +177,26 @@ int main() {
     while (!historico.isEmpty()) {
         cout << historico.pop() << "\n";
     }
+
+
+    cout << "\n=== R3 - LISTA ENCADEADA DE MEDICOS ===\n";
+
+    ListaMedicos medicos;
+    medicos.adicionarMedico("Dra. Ana");
+    medicos.adicionarMedico("Dr. Bruno");
+    medicos.adicionarMedico("Dra. Carla");
+
+    cout << "Medicos cadastrados:\n";
+    medicos.percorrer();
+
+    cout << "Proximo medico chamado: "
+         << medicos.chamarMedico() << "\n";
+
+    cout << "Medicos restantes:\n";
+    medicos.percorrer();
+
+    cout << "Existe medico disponivel? "
+         << (medicos.temMedico() ? "Sim" : "Nao") << "\n";
 
     return 0;
 }
